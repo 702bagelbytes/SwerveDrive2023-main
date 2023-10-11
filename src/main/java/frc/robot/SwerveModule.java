@@ -42,6 +42,7 @@ public class SwerveModule {
         configDriveMotor();
 
         lastAngle = getState().angle;
+        
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop){

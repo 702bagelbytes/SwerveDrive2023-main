@@ -25,15 +25,18 @@ public class Swerve extends SubsystemBase {
 
     public Swerve() {
         gyro = new AHRS();
+        gyro.reset();
         gyro.calibrate();
         zeroGyro();
-
+       
+       
         mSwerveMods = new SwerveModule[] {
             new SwerveModule(0, Constants.Swerve.Mod0.constants),
             new SwerveModule(1, Constants.Swerve.Mod1.constants),
             new SwerveModule(2, Constants.Swerve.Mod2.constants),
             new SwerveModule(3, Constants.Swerve.Mod3.constants)
         };
+        
 
         /* By pausing init for a second before setting module offsets, we avoid a bug with inverting motors.
          * See https://github.com/Team364/BaseFalconSwerve/issues/8 for more info.
@@ -100,10 +103,12 @@ public class Swerve extends SubsystemBase {
 
     public void zeroGyro(){
         gyro.zeroYaw();
+        
     }
 
     public Rotation2d getYaw() {
         return (Constants.Swerve.invertGyro) ? Rotation2d.fromDegrees(360 - gyro.getYaw()) : Rotation2d.fromDegrees(gyro.getYaw());
+        
     }
 
     public void resetModulesToAbsolute(){
@@ -114,12 +119,17 @@ public class Swerve extends SubsystemBase {
 
     @Override
     public void periodic(){
-        swerveOdometry.update(getYaw(), getModulePositions());  
+        swerveOdometry.update(getYaw(), getModulePositions()); 
+        double Yaw = 360 + gyro.getYaw();
+        double Fused = gyro.getCompassHeading();
+        SmartDashboard.putNumber("YAW", Yaw);
+        SmartDashboard.putNumber("COMPASS", Fused);
 
         for(SwerveModule mod : mSwerveMods){
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Cancoder", mod.getCanCoder().getDegrees());
             SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Integrated", mod.getPosition().angle.getDegrees());
-            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond);    
+            SmartDashboard.putNumber("Mod " + mod.moduleNumber + " Velocity", mod.getState().speedMetersPerSecond); 
+   
         }
     }
 }
